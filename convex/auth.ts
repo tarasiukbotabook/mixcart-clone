@@ -22,12 +22,7 @@ export const registerRestaurant = mutation({
   args: {
     email: v.string(),
     password: v.string(),
-    name: v.string(),
     phone: v.string(),
-    restaurantName: v.string(),
-    restaurantAddress: v.string(),
-    restaurantCity: v.string(),
-    restaurantPostalCode: v.string(),
   },
   async handler(ctx, args) {
     console.log("registerRestaurant called with:", args.email);
@@ -51,13 +46,9 @@ export const registerRestaurant = mutation({
       const userId = await ctx.db.insert("users", {
         email: args.email,
         password: hashedPassword,
-        name: args.name,
+        name: args.email.split("@")[0],
         phone: args.phone,
         type: "restaurant",
-        restaurantName: args.restaurantName,
-        restaurantAddress: args.restaurantAddress,
-        restaurantCity: args.restaurantCity,
-        restaurantPostalCode: args.restaurantPostalCode,
         status: "active",
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -91,13 +82,7 @@ export const registerSupplier = mutation({
   args: {
     email: v.string(),
     password: v.string(),
-    name: v.string(),
     phone: v.string(),
-    supplierName: v.string(),
-    supplierAddress: v.string(),
-    supplierCity: v.string(),
-    supplierPostalCode: v.string(),
-    supplierDescription: v.optional(v.string()),
   },
   async handler(ctx, args) {
     console.log("registerSupplier called with:", args.email);
@@ -120,14 +105,9 @@ export const registerSupplier = mutation({
       const userId = await ctx.db.insert("users", {
         email: args.email,
         password: hashedPassword,
-        name: args.name,
+        name: args.email.split("@")[0],
         phone: args.phone,
         type: "supplier",
-        supplierName: args.supplierName,
-        supplierAddress: args.supplierAddress,
-        supplierCity: args.supplierCity,
-        supplierPostalCode: args.supplierPostalCode,
-        supplierDescription: args.supplierDescription,
         status: "active",
         createdAt: Date.now(),
         updatedAt: Date.now(),

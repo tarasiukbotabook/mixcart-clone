@@ -21,22 +21,10 @@ export default function RegisterPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    name: "",
     phone: "",
-    restaurantName: "",
-    restaurantAddress: "",
-    restaurantCity: "",
-    restaurantPostalCode: "",
-    supplierName: "",
-    supplierAddress: "",
-    supplierCity: "",
-    supplierPostalCode: "",
-    supplierDescription: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -51,6 +39,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (formData.password.length < 6) {
+      toast.error("Пароль должен быть не менее 6 символов");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -60,24 +53,13 @@ export default function RegisterPage() {
         result = await registerRestaurant({
           email: formData.email,
           password: formData.password,
-          name: formData.name,
           phone: formData.phone,
-          restaurantName: formData.restaurantName,
-          restaurantAddress: formData.restaurantAddress,
-          restaurantCity: formData.restaurantCity,
-          restaurantPostalCode: formData.restaurantPostalCode,
         });
       } else {
         result = await registerSupplier({
           email: formData.email,
           password: formData.password,
-          name: formData.name,
           phone: formData.phone,
-          supplierName: formData.supplierName,
-          supplierAddress: formData.supplierAddress,
-          supplierCity: formData.supplierCity,
-          supplierPostalCode: formData.supplierPostalCode,
-          supplierDescription: formData.supplierDescription,
         });
       }
 
@@ -154,36 +136,34 @@ export default function RegisterPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Common Fields */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="your@email.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Имя контактного лица
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Иван Иванов"
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="your@email.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Телефон
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="+7 (999) 999-99-99"
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -216,167 +196,6 @@ export default function RegisterPage() {
                 />
               </div>
             </div>
-
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Телефон
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="+7 (999) 999-99-99"
-              />
-            </div>
-
-            {/* Restaurant Fields */}
-            {userType === "restaurant" && (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Название ресторана
-                  </label>
-                  <input
-                    type="text"
-                    name="restaurantName"
-                    value={formData.restaurantName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Мой ресторан"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">
-                      Адрес
-                    </label>
-                    <input
-                      type="text"
-                      name="restaurantAddress"
-                      value={formData.restaurantAddress}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="ул. Примерная, 1"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">
-                      Город
-                    </label>
-                    <input
-                      type="text"
-                      name="restaurantCity"
-                      value={formData.restaurantCity}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Москва"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Почтовый индекс
-                  </label>
-                  <input
-                    type="text"
-                    name="restaurantPostalCode"
-                    value={formData.restaurantPostalCode}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="123456"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Supplier Fields */}
-            {userType === "supplier" && (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Название компании
-                  </label>
-                  <input
-                    type="text"
-                    name="supplierName"
-                    value={formData.supplierName}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Моя компания"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">
-                      Адрес
-                    </label>
-                    <input
-                      type="text"
-                      name="supplierAddress"
-                      value={formData.supplierAddress}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="ул. Примерная, 1"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold mb-2">
-                      Город
-                    </label>
-                    <input
-                      type="text"
-                      name="supplierCity"
-                      value={formData.supplierCity}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Москва"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Почтовый индекс
-                  </label>
-                  <input
-                    type="text"
-                    name="supplierPostalCode"
-                    value={formData.supplierPostalCode}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="123456"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold mb-2">
-                    Описание компании
-                  </label>
-                  <textarea
-                    name="supplierDescription"
-                    value={formData.supplierDescription}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Расскажите о вашей компании..."
-                    rows={4}
-                  />
-                </div>
-              </>
-            )}
 
             {/* Submit Button */}
             <button
