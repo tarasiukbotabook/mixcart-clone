@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import toast from "react-hot-toast";
+import { AddIcon } from "@/components/Icons";
 
 interface Product {
   _id: string;
@@ -116,9 +117,10 @@ export default function SupplierProducts() {
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition font-medium flex items-center gap-2"
         >
-          {showForm ? "Отмена" : "+ Добавить товар"}
+          <AddIcon />
+          {showForm ? "Отмена" : "Добавить товар"}
         </button>
       </div>
 

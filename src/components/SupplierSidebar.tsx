@@ -6,6 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { HomeIcon, ProductsIcon, LogoutIcon } from "./Icons";
 
 interface SupplierSidebarProps {
   userEmail: string;
@@ -20,12 +21,12 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
     {
       label: "Главное",
       href: "/supplier/dashboard",
-      icon: "🏠",
+      icon: HomeIcon,
     },
     {
       label: "Мои товары",
       href: "/supplier/products",
-      icon: "📦",
+      icon: ProductsIcon,
     },
   ];
 
@@ -58,6 +59,7 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
+            const Icon = item.icon;
             return (
               <li key={item.href}>
                 <Link
@@ -68,7 +70,7 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
                 >
-                  <span className="text-xl">{item.icon}</span>
+                  <Icon />
                   <span className="font-medium">{item.label}</span>
                 </Link>
               </li>
@@ -85,8 +87,9 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
         </div>
         <button
           onClick={handleLogout}
-          className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition font-medium"
+          className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition font-medium flex items-center justify-center gap-2"
         >
+          <LogoutIcon />
           Выход
         </button>
       </div>

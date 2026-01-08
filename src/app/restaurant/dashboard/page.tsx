@@ -1,5 +1,8 @@
 "use client";
 
+import Link from "next/link";
+import { TotalOrdersIcon, PendingOrdersIcon, CompletedOrdersIcon, MoneyIcon } from "@/components/Icons";
+
 export default function RestaurantDashboard() {
   return (
     <div className="p-8">
@@ -18,7 +21,9 @@ export default function RestaurantDashboard() {
               <p className="text-gray-600 text-sm">Всего заказов</p>
               <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
             </div>
-            <div className="text-4xl">📋</div>
+            <div className="text-gray-400">
+              <TotalOrdersIcon />
+            </div>
           </div>
         </div>
 
@@ -29,7 +34,9 @@ export default function RestaurantDashboard() {
               <p className="text-gray-600 text-sm">Ожидающих заказов</p>
               <p className="text-3xl font-bold text-orange-600 mt-2">0</p>
             </div>
-            <div className="text-4xl">⏳</div>
+            <div className="text-gray-400">
+              <PendingOrdersIcon />
+            </div>
           </div>
         </div>
 
@@ -40,7 +47,9 @@ export default function RestaurantDashboard() {
               <p className="text-gray-600 text-sm">Завершено заказов</p>
               <p className="text-3xl font-bold text-green-600 mt-2">0</p>
             </div>
-            <div className="text-4xl">✅</div>
+            <div className="text-gray-400">
+              <CompletedOrdersIcon />
+            </div>
           </div>
         </div>
 
@@ -51,7 +60,9 @@ export default function RestaurantDashboard() {
               <p className="text-gray-600 text-sm">Потрачено</p>
               <p className="text-3xl font-bold text-blue-600 mt-2">0 сўм</p>
             </div>
-            <div className="text-4xl">💰</div>
+            <div className="text-gray-400">
+              <MoneyIcon />
+            </div>
           </div>
         </div>
       </div>
@@ -71,7 +82,7 @@ export default function RestaurantDashboard() {
       {/* Quick Actions */}
       <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
-          <h3 className="text-lg font-bold text-blue-900 mb-2">🛒 Каталог</h3>
+          <h3 className="text-lg font-bold text-blue-900 mb-2">Каталог</h3>
           <p className="text-blue-700 mb-4">
             Просмотрите доступные товары от поставщиков
           </p>
@@ -84,7 +95,7 @@ export default function RestaurantDashboard() {
         </div>
 
         <div className="bg-green-50 rounded-lg p-6 border-2 border-green-200">
-          <h3 className="text-lg font-bold text-green-900 mb-2">🛒 Корзина</h3>
+          <h3 className="text-lg font-bold text-green-900 mb-2">Корзина</h3>
           <p className="text-green-700 mb-4">
             Проверьте товары в вашей корзине
           </p>
