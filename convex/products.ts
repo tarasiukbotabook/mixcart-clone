@@ -9,6 +9,9 @@ export const list = query({
   async handler(ctx, args) {
     let products = await ctx.db.query("products").collect();
 
+    // Filter only active products
+    products = products.filter((p) => p.active !== false);
+
     if (args.categoryId) {
       products = products.filter((p) => p.categoryId === args.categoryId);
     }
@@ -73,6 +76,7 @@ export const create = mutation({
       ...args,
       rating: 0,
       reviews: 0,
+      active: true,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -86,6 +90,7 @@ export const update = mutation({
     description: v.optional(v.string()),
     price: v.optional(v.number()),
     stock: v.optional(v.number()),
+    active: v.optional(v.boolean()),
   },
   async handler(ctx, args) {
     const { id, ...updates } = args;

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 // Маршруты, требующие авторизации
-const protectedRoutes = ["/dashboard", "/supplier", "/orders", "/restaurant"];
+const protectedRoutes = ["/dashboard", "/supplier", "/orders", "/restaurant", "/cart"];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;

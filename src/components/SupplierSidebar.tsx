@@ -6,7 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { HomeIcon, ProductsIcon, LogoutIcon } from "./Icons";
+import { HomeIcon, ProductsIcon, LogoutIcon, ProfileIcon } from "./Icons";
 
 interface SupplierSidebarProps {
   userEmail: string;
@@ -27,6 +27,11 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
       label: "Мои товары",
       href: "/supplier/products",
       icon: ProductsIcon,
+    },
+    {
+      label: "Профиль",
+      href: "/supplier/profile",
+      icon: ProfileIcon,
     },
   ];
 
@@ -81,10 +86,15 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
 
       {/* User Info & Logout */}
       <div className="p-4 border-t border-gray-800">
-        <div className="mb-4 px-4 py-2 bg-gray-800 rounded-lg">
-          <p className="text-xs text-gray-400">Аккаунт</p>
-          <p className="text-sm font-medium truncate">{userEmail}</p>
-        </div>
+        <button
+          onClick={() => router.push("/supplier/profile")}
+          className="w-full mb-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition cursor-pointer"
+        >
+          <p className="text-xs text-gray-400 text-left">Аккаунт</p>
+          <p className="text-sm font-medium truncate text-left text-blue-400 hover:text-blue-300">
+            {userEmail}
+          </p>
+        </button>
         <button
           onClick={handleLogout}
           className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition font-medium flex items-center justify-center gap-2"

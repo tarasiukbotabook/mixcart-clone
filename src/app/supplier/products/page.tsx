@@ -6,20 +6,15 @@ import { api } from "@/convex/_generated/api";
 import toast from "react-hot-toast";
 import { AddIcon } from "@/components/Icons";
 
-interface Product {
-  _id: string;
-  name: string;
-  price: number;
-  stock: number;
-  image: string;
-}
-
 export default function SupplierProducts() {
   const [showForm, setShowForm] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingField, setEditingField] = useState<"price" | "stock" | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,6 +29,7 @@ export default function SupplierProducts() {
   const currentUser = useQuery(api.auth.getCurrentUser, token ? { token } : "skip");
   const categories = useQuery(api.categories.list, {});
   const createProduct = useMutation(api.products.create);
+  const updateProduct = useMutation(api.products.update);
   
   // Get all products
   const allProducts = useQuery(api.products.list, {});
@@ -77,6 +73,41 @@ export default function SupplierProducts() {
         setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleQuickEdit = async (productId: string, field: "price" | "stock", value: string) => {
+    try {
+      const numValue = parseFloat(value);
+      if (isNaN(numValue)) {
+        toast.error("Введите корректное значение");
+        return;
+      }
+
+      await updateProduct({
+        id: productId as any,
+        [field]: numValue,
+      });
+
+      toast.success(`${field === "price" ? "Цена" : "Вес"} обновлена!`);
+      setEditingId(null);
+      setEditingField(null);
+      setEditValue("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Ошибка при обновлении");
+    }
+  };
+
+  const handleToggleActive = async (productId: string, currentActive: boolean) => {
+    try {
+      await updateProduct({
+        id: productId as any,
+        active: !currentActive,
+      });
+
+      toast.success(currentActive ? "Товар деактивирован" : "Товар активирован");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Ошибка при обновлении");
     }
   };
 
@@ -310,15 +341,20 @@ export default function SupplierProducts() {
           {supplierProducts && supplierProducts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {supplierProducts.map((product: any) => (
-                <div key={product._id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
+                <div key={product._id} className={`border-2 rounded-lg overflow-hidden hover:shadow-lg transition ${product.active ? "border-gray-200" : "border-red-300 bg-red-50"}`}>
                   {/* Product Image */}
-                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                  <div className="aspect-square bg-gray-200 overflow-hidden relative">
                     {product.image && (
                       <img
                         src={product.image}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
+                    )}
+                    {!product.active && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-bold text-lg">Неактивно</span>
+                      </div>
                     )}
                   </div>
 
@@ -327,13 +363,85 @@ export default function SupplierProducts() {
                     <h3 className="font-semibold text-gray-900 mb-2">{product.name}</h3>
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
                     
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-lg font-bold text-blue-600">{product.price} сўм/кг</span>
-                      <span className="text-sm text-gray-600">{product.stock} кг</span>
+                    {/* Price and Stock with Quick Edit */}
+                    <div className="space-y-2 mb-4">
+                      {/* Price */}
+                      <div className="flex items-center justify-between">
+                        {editingId === product._id && editingField === "price" ? (
+                          <div className="flex gap-2 flex-1">
+                            <input
+                              type="number"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              step="0.01"
+                              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleQuickEdit(product._id, "price", editValue)}
+                              className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            >
+                              ✓
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingId(product._id);
+                              setEditingField("price");
+                              setEditValue(product.price.toString());
+                            }}
+                            className="text-lg font-bold text-blue-600 hover:underline cursor-pointer"
+                          >
+                            {product.price} сўм/кг
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Stock */}
+                      <div className="flex items-center justify-between">
+                        {editingId === product._id && editingField === "stock" ? (
+                          <div className="flex gap-2 flex-1">
+                            <input
+                              type="number"
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              step="0.1"
+                              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleQuickEdit(product._id, "stock", editValue)}
+                              className="px-2 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            >
+                              ✓
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              setEditingId(product._id);
+                              setEditingField("stock");
+                              setEditValue(product.stock.toString());
+                            }}
+                            className="text-sm text-gray-600 hover:underline cursor-pointer"
+                          >
+                            {product.stock} кг в наличии
+                          </button>
+                        )}
+                      </div>
                     </div>
 
-                    <button className="w-full bg-gray-200 text-gray-900 py-2 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
-                      Редактировать
+                    {/* Active Toggle */}
+                    <button
+                      onClick={() => handleToggleActive(product._id, product.active)}
+                      className={`w-full py-2 rounded-lg font-medium transition ${
+                        product.active
+                          ? "bg-green-100 text-green-900 hover:bg-green-200"
+                          : "bg-red-100 text-red-900 hover:bg-red-200"
+                      }`}
+                    >
+                      {product.active ? "✓ В наличии" : "✗ Нет в наличии"}
                     </button>
                   </div>
                 </div>

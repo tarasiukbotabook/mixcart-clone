@@ -26,6 +26,7 @@ export default defineSchema({
     rating: v.optional(v.number()),
     reviews: v.optional(v.number()),
     tags: v.array(v.string()),
+    active: v.optional(v.boolean()), // Активен ли товар
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -43,12 +44,14 @@ export default defineSchema({
     
     // Для ресторана
     restaurantName: v.optional(v.string()),
+    restaurantInn: v.optional(v.string()),
     restaurantAddress: v.optional(v.string()),
     restaurantCity: v.optional(v.string()),
     restaurantPostalCode: v.optional(v.string()),
     
     // Для поставщика
     supplierName: v.optional(v.string()),
+    supplierInn: v.optional(v.string()),
     supplierAddress: v.optional(v.string()),
     supplierCity: v.optional(v.string()),
     supplierPostalCode: v.optional(v.string()),

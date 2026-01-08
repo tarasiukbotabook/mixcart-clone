@@ -242,3 +242,47 @@ export const logout = mutation({
     return { success: true };
   },
 });
+
+// Обновление профиля ресторана
+export const updateRestaurantProfile = mutation({
+  args: {
+    userId: v.id("users"),
+    restaurantName: v.string(),
+    restaurantInn: v.string(),
+    phone: v.string(),
+  },
+  async handler(ctx, args) {
+    const { userId, ...updates } = args;
+    
+    await ctx.db.patch(userId, {
+      ...updates,
+      updatedAt: Date.now(),
+    });
+
+    const user = await ctx.db.get(userId);
+    const { password, ...userWithoutPassword } = user!;
+    return userWithoutPassword;
+  },
+});
+
+// Обновление профиля поставщика
+export const updateSupplierProfile = mutation({
+  args: {
+    userId: v.id("users"),
+    supplierName: v.string(),
+    supplierInn: v.string(),
+    phone: v.string(),
+  },
+  async handler(ctx, args) {
+    const { userId, ...updates } = args;
+    
+    await ctx.db.patch(userId, {
+      ...updates,
+      updatedAt: Date.now(),
+    });
+
+    const user = await ctx.db.get(userId);
+    const { password, ...userWithoutPassword } = user!;
+    return userWithoutPassword;
+  },
+});

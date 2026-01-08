@@ -1,32 +1,59 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
+// Получить корзину пользователя
 export const getCart = query({
   args: { userId: v.id("users") },
   async handler(ctx, args) {
-    return await ctx.db
+    const cart = await ctx.db
       .query("carts")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
+
+    if (!cart) {
+      return null;
+    }
+
+    // Получаем информацию о товарах в корзине
+    const itemsWithDetails = await Promise.all(
+      cart.items.map(async (item) => {
+        const product = await ctx.db.get(item.productId);
+        return {
+          ...item,
+          product,
+        };
+      })
+    );
+
+    return {
+      ...cart,
+      items: itemsWithDetails,
+    };
   },
 });
 
-export const addItem = mutation({
+// Добавить товар в корзину
+export const addToCart = mutation({
   args: {
     userId: v.id("users"),
     productId: v.id("products"),
     quantity: v.number(),
   },
   async handler(ctx, args) {
+    // Получаем товар
     const product = await ctx.db.get(args.productId);
-    if (!product) throw new Error("Product not found");
+    if (!product) {
+      throw new Error("Product not found");
+    }
 
+    // Получаем корзину
     let cart = await ctx.db
       .query("carts")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
 
     if (!cart) {
+      // Создаем новую корзину
       const cartId = await ctx.db.insert("carts", {
         userId: args.userId,
         items: [
@@ -38,31 +65,79 @@ export const addItem = mutation({
         ],
         updatedAt: Date.now(),
       });
-      cart = await ctx.db.get(cartId);
+      return await ctx.db.get(cartId);
+    }
+
+    // Проверяем, есть ли уже этот товар в корзине
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.productId === args.productId
+    );
+
+    if (existingItemIndex !== -1) {
+      // Обновляем количество
+      cart.items[existingItemIndex].quantity += args.quantity;
     } else {
-      const existingItem = cart.items.find(
-        (item) => item.productId === args.productId
-      );
-      if (existingItem) {
-        existingItem.quantity += args.quantity;
-      } else {
-        cart.items.push({
-          productId: args.productId,
-          quantity: args.quantity,
-          price: product.price,
-        });
-      }
-      await ctx.db.patch(cart._id, {
-        items: cart.items,
-        updatedAt: Date.now(),
+      // Добавляем новый товар
+      cart.items.push({
+        productId: args.productId,
+        quantity: args.quantity,
+        price: product.price,
       });
     }
 
-    return cart;
+    await ctx.db.patch(cart._id, {
+      items: cart.items,
+      updatedAt: Date.now(),
+    });
+
+    return await ctx.db.get(cart._id);
   },
 });
 
-export const removeItem = mutation({
+// Обновить количество товара в корзине
+export const updateCartItem = mutation({
+  args: {
+    userId: v.id("users"),
+    productId: v.id("products"),
+    quantity: v.number(),
+  },
+  async handler(ctx, args) {
+    const cart = await ctx.db
+      .query("carts")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId === args.productId
+    );
+
+    if (itemIndex === -1) {
+      throw new Error("Item not found in cart");
+    }
+
+    if (args.quantity <= 0) {
+      // Удаляем товар
+      cart.items.splice(itemIndex, 1);
+    } else {
+      // Обновляем количество
+      cart.items[itemIndex].quantity = args.quantity;
+    }
+
+    await ctx.db.patch(cart._id, {
+      items: cart.items,
+      updatedAt: Date.now(),
+    });
+
+    return await ctx.db.get(cart._id);
+  },
+});
+
+// Удалить товар из корзины
+export const removeFromCart = mutation({
   args: {
     userId: v.id("users"),
     productId: v.id("products"),
@@ -73,19 +148,14 @@ export const removeItem = mutation({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
 
-    if (!cart) throw new Error("Cart not found");
-
-    const updatedItems = cart.items.filter(
-      (item) => item.productId !== args.productId
-    );
-
-    if (updatedItems.length === 0) {
-      await ctx.db.delete(cart._id);
-      return null;
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
+    cart.items = cart.items.filter((item) => item.productId !== args.productId);
+
     await ctx.db.patch(cart._id, {
-      items: updatedItems,
+      items: cart.items,
       updatedAt: Date.now(),
     });
 
@@ -93,6 +163,7 @@ export const removeItem = mutation({
   },
 });
 
+// Очистить корзину
 export const clearCart = mutation({
   args: { userId: v.id("users") },
   async handler(ctx, args) {
@@ -101,10 +172,15 @@ export const clearCart = mutation({
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
 
-    if (cart) {
-      await ctx.db.delete(cart._id);
+    if (!cart) {
+      throw new Error("Cart not found");
     }
 
-    return null;
+    await ctx.db.patch(cart._id, {
+      items: [],
+      updatedAt: Date.now(),
+    });
+
+    return await ctx.db.get(cart._id);
   },
 });
