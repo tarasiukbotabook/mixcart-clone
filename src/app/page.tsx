@@ -19,6 +19,7 @@ interface User {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -34,12 +35,19 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Update user when currentUser changes
+  // Update user when currentUser changes and redirect if authenticated
   useEffect(() => {
     if (mounted && token) {
       if (currentUser !== undefined) {
         if (currentUser) {
-          setUser(currentUser as User);
+          const userData = currentUser as User;
+          setUser(userData);
+          // Перенаправляем в личный кабинет
+          if (userData.type === "restaurant") {
+            router.push("/restaurant/dashboard");
+          } else if (userData.type === "supplier") {
+            router.push("/supplier/dashboard");
+          }
         } else {
           setUser(null);
         }
@@ -49,7 +57,7 @@ export default function Home() {
       setUser(null);
       setLoading(false);
     }
-  }, [currentUser, token, mounted]);
+  }, [currentUser, token, mounted, router]);
 
   const handleLogout = async () => {
     if (token) {
@@ -70,6 +78,11 @@ export default function Home() {
     return null;
   }
 
+  // Если пользователь авторизован, не показываем главную страницу
+  if (user) {
+    return null;
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
       {/* Header */}
@@ -80,37 +93,15 @@ export default function Home() {
             <Link href="/catalog" className="text-gray-700 hover:text-blue-600">
               Каталог
             </Link>
-            {!user ? (
-              <>
-                <Link href="/auth/login" className="text-gray-700 hover:text-blue-600">
-                  Вход
-                </Link>
-                <Link
-                  href="/auth/register"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Регистрация
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  href={user.type === "restaurant" ? "/restaurant/dashboard" : "/supplier/dashboard"}
-                  className="text-gray-700 hover:text-blue-600"
-                >
-                  Личный кабинет
-                </Link>
-                <span className="text-gray-600 text-sm">
-                  {user.email}
-                </span>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
-                >
-                  Выход
-                </button>
-              </>
-            )}
+            <Link href="/auth/login" className="text-gray-700 hover:text-blue-600">
+              Вход
+            </Link>
+            <Link
+              href="/auth/register"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Регистрация
+            </Link>
           </div>
         </nav>
       </header>
@@ -118,53 +109,26 @@ export default function Home() {
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
-          {user ? (
-            <>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                Добро пожаловать, {user.name}!
-              </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                {user.type === "restaurant" ? "🍽️ Вы авторизованы как ресторан" : "📦 Вы авторизованы как поставщик"}
-              </p>
-              <div className="flex gap-4 justify-center">
-                <Link
-                  href={user.type === "restaurant" ? "/restaurant/dashboard" : "/supplier/dashboard"}
-                  className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                >
-                  Перейти в личный кабинет
-                </Link>
-                <Link
-                  href="/catalog"
-                  className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition"
-                >
-                  Просмотреть каталог
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                Добро пожаловать в HubFood
-              </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Платформа для ресторанов и поставщиков
-              </p>
-              <div className="flex gap-4 justify-center">
-                <Link
-                  href="/auth/register"
-                  className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                >
-                  Начать
-                </Link>
-                <Link
-                  href="/catalog"
-                  className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition"
-                >
-                  Просмотреть каталог
-                </Link>
-              </div>
-            </>
-          )}
+          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+            Добро пожаловать в HubFood
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Платформа для ресторанов и поставщиков
+          </p>
+          <div className="flex gap-4 justify-center">
+            <Link
+              href="/auth/register"
+              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              Начать
+            </Link>
+            <Link
+              href="/catalog"
+              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition"
+            >
+              Просмотреть каталог
+            </Link>
+          </div>
         </div>
       </section>
 
