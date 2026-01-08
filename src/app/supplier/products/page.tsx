@@ -31,15 +31,11 @@ export default function SupplierProducts() {
   const createProduct = useMutation(api.products.create);
   const updateProduct = useMutation(api.products.update);
   
-  // Get all products
-  const allProducts = useQuery(api.products.list, {});
-  
-  // Filter products for this supplier
-  const supplierProducts = allProducts?.filter((p: any) => p.supplierId === userId) || [];
-
-  useEffect(() => {
-    console.log("Categories:", categories);
-  }, [categories]);
+  // Get supplier's products (including inactive)
+  const supplierProducts = useQuery(
+    api.products.listBySupplier,
+    userId ? { supplierId: userId as any } : "skip"
+  ) || [];
 
   useEffect(() => {
     const storedToken = localStorage.getItem("auth_token");

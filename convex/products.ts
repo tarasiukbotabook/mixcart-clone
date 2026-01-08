@@ -101,3 +101,16 @@ export const update = mutation({
     return await ctx.db.get(id);
   },
 });
+
+// Get all products for a supplier (including inactive)
+export const listBySupplier = query({
+  args: { supplierId: v.id("users") },
+  async handler(ctx, args) {
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_supplier", (q) => q.eq("supplierId", args.supplierId))
+      .collect();
+
+    return products;
+  },
+});
