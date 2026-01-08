@@ -34,6 +34,12 @@ export default function SupplierProducts() {
   const currentUser = useQuery(api.auth.getCurrentUser, token ? { token } : "skip");
   const categories = useQuery(api.categories.list, {});
   const createProduct = useMutation(api.products.create);
+  
+  // Get all products
+  const allProducts = useQuery(api.products.list, {});
+  
+  // Filter products for this supplier
+  const supplierProducts = allProducts?.filter((p: any) => p.supplierId === userId) || [];
 
   useEffect(() => {
     console.log("Categories:", categories);
@@ -298,12 +304,46 @@ export default function SupplierProducts() {
       {/* Products List */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Список товаров</h2>
+          <h2 className="text-xl font-bold text-gray-900">Список товаров ({supplierProducts.length})</h2>
         </div>
         <div className="p-6">
-          <p className="text-gray-500 text-center py-8">
-            Товары будут отображаться здесь после добавления
-          </p>
+          {supplierProducts && supplierProducts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {supplierProducts.map((product: any) => (
+                <div key={product._id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
+                  {/* Product Image */}
+                  <div className="aspect-square bg-gray-200 overflow-hidden">
+                    {product.image && (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">{product.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">{product.description}</p>
+                    
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-lg font-bold text-blue-600">{product.price} сўм/кг</span>
+                      <span className="text-sm text-gray-600">{product.stock} кг</span>
+                    </div>
+
+                    <button className="w-full bg-gray-200 text-gray-900 py-2 rounded-lg hover:bg-gray-300 transition text-sm font-medium">
+                      Редактировать
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-8">
+              Товары будут отображаться здесь после добавления
+            </p>
+          )}
         </div>
       </div>
     </div>
