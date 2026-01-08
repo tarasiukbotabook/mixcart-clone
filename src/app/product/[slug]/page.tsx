@@ -98,11 +98,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             {/* Price */}
             <div className="mb-6">
               <span className="text-4xl font-bold text-blue-600">
-                {product.price} ₽
+                {product.price} сўм
               </span>
               {product.originalPrice && (
                 <span className="text-lg text-gray-500 line-through ml-4">
-                  {product.originalPrice} ₽
+                  {product.originalPrice} сўм
                 </span>
               )}
             </div>

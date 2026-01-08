@@ -49,7 +49,7 @@ export default function RestaurantDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-600 text-sm">Потрачено</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">0 ₽</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">0 сўм</p>
             </div>
             <div className="text-4xl">💰</div>
           </div>

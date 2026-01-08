@@ -114,11 +114,11 @@ export default function CatalogPage() {
                       <div className="mt-4 flex justify-between items-center">
                         <div>
                           <span className="text-lg font-bold text-blue-600">
-                            {product.price} ₽
+                            {product.price} сўм
                           </span>
                           {product.originalPrice && (
                             <span className="text-sm text-gray-500 line-through ml-2">
-                              {product.originalPrice} ₽
+                              {product.originalPrice} сўм
                             </span>
                           )}
                         </div>
