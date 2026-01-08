@@ -65,6 +65,7 @@ export default function RegisterPage() {
 
       // Сохранение токена
       localStorage.setItem("auth_token", result.token);
+      document.cookie = `auth_token=${result.token}; path=/; max-age=${30 * 24 * 60 * 60}`;
 
       toast.success("Регистрация успешна!");
       router.push("/dashboard");

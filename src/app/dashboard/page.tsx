@@ -40,7 +40,8 @@ export default function DashboardPage() {
   );
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("auth_token");
+    const storedToken = localStorage.getItem("auth_token") || 
+                       document.cookie.split("; ").find(row => row.startsWith("auth_token="))?.split("=")[1];
     if (!storedToken) {
       router.push("/auth/login");
       return;
