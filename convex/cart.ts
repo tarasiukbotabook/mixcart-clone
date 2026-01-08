@@ -27,7 +27,7 @@ export const addItem = mutation({
       .first();
 
     if (!cart) {
-      cart = await ctx.db.insert("carts", {
+      const cartId = await ctx.db.insert("carts", {
         userId: args.userId,
         items: [
           {
@@ -38,6 +38,7 @@ export const addItem = mutation({
         ],
         updatedAt: Date.now(),
       });
+      cart = await ctx.db.get(cartId);
     } else {
       const existingItem = cart.items.find(
         (item) => item.productId === args.productId
