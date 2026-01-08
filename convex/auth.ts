@@ -1,24 +1,19 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-// Простая функция для хеширования (используем встроенный Node.js модуль)
-async function hashPassword(password: string): Promise<string> {
-  // Для простоты используем базовый хеш
-  // В production используй bcrypt через npm пакет
+// Простая функция для хеширования
+function hashPassword(password: string): string {
   let hash = 0;
   for (let i = 0; i < password.length; i++) {
     const char = password.charCodeAt(i);
     hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32bit integer
+    hash = hash & hash;
   }
   return Math.abs(hash).toString(16);
 }
 
-async function verifyPassword(
-  password: string,
-  hash: string
-): Promise<boolean> {
-  const passwordHash = await hashPassword(password);
+function verifyPassword(password: string, hash: string): boolean {
+  const passwordHash = hashPassword(password);
   return passwordHash === hash;
 }
 
@@ -35,6 +30,8 @@ export const registerRestaurant = mutation({
     restaurantPostalCode: v.string(),
   },
   async handler(ctx, args) {
+    console.log("registerRestaurant called with:", args.email);
+    
     try {
       // Проверка, существует ли уже пользователь с таким email
       const existingUser = await ctx.db
@@ -47,7 +44,8 @@ export const registerRestaurant = mutation({
       }
 
       // Хеширование пароля
-      const hashedPassword = await hashPassword(args.password);
+      const hashedPassword = hashPassword(args.password);
+      console.log("Password hashed");
 
       // Создание пользователя
       const userId = await ctx.db.insert("users", {
@@ -65,9 +63,11 @@ export const registerRestaurant = mutation({
         updatedAt: Date.now(),
       });
 
+      console.log("User created:", userId);
+
       // Создание сессии
       const token = Math.random().toString(36).substring(2, 15);
-      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 дней
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
 
       await ctx.db.insert("sessions", {
         userId,
@@ -75,6 +75,8 @@ export const registerRestaurant = mutation({
         expiresAt,
         createdAt: Date.now(),
       });
+
+      console.log("Session created");
 
       return { userId, token };
     } catch (error) {
@@ -98,48 +100,55 @@ export const registerSupplier = mutation({
     supplierDescription: v.optional(v.string()),
   },
   async handler(ctx, args) {
-    // Проверка, существует ли уже пользователь с таким email
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .first();
+    console.log("registerSupplier called with:", args.email);
+    
+    try {
+      // Проверка, существует ли уже пользователь с таким email
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
 
-    if (existingUser) {
-      throw new Error("User with this email already exists");
+      if (existingUser) {
+        throw new Error("User with this email already exists");
+      }
+
+      // Хеширование пароля
+      const hashedPassword = hashPassword(args.password);
+
+      // Создание пользователя
+      const userId = await ctx.db.insert("users", {
+        email: args.email,
+        password: hashedPassword,
+        name: args.name,
+        phone: args.phone,
+        type: "supplier",
+        supplierName: args.supplierName,
+        supplierAddress: args.supplierAddress,
+        supplierCity: args.supplierCity,
+        supplierPostalCode: args.supplierPostalCode,
+        supplierDescription: args.supplierDescription,
+        status: "active",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
+      // Создание сессии
+      const token = Math.random().toString(36).substring(2, 15);
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+      await ctx.db.insert("sessions", {
+        userId,
+        token,
+        expiresAt,
+        createdAt: Date.now(),
+      });
+
+      return { userId, token };
+    } catch (error) {
+      console.error("registerSupplier error:", error);
+      throw error;
     }
-
-    // Хеширование пароля
-    const hashedPassword = await hashPassword(args.password);
-
-    // Создание пользователя
-    const userId = await ctx.db.insert("users", {
-      email: args.email,
-      password: hashedPassword,
-      name: args.name,
-      phone: args.phone,
-      type: "supplier",
-      supplierName: args.supplierName,
-      supplierAddress: args.supplierAddress,
-      supplierCity: args.supplierCity,
-      supplierPostalCode: args.supplierPostalCode,
-      supplierDescription: args.supplierDescription,
-      status: "active",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
-    // Создание сессии
-    const token = Math.random().toString(36).substring(2, 15);
-    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 дней
-
-    await ctx.db.insert("sessions", {
-      userId,
-      token,
-      expiresAt,
-      createdAt: Date.now(),
-    });
-
-    return { userId, token };
   },
 });
 
@@ -150,34 +159,41 @@ export const login = mutation({
     password: v.string(),
   },
   async handler(ctx, args) {
-    // Поиск пользователя
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .first();
+    console.log("login called with:", args.email);
+    
+    try {
+      // Поиск пользователя
+      const user = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
 
-    if (!user) {
-      throw new Error("User not found");
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      // Проверка пароля
+      const isPasswordValid = verifyPassword(args.password, user.password);
+      if (!isPasswordValid) {
+        throw new Error("Invalid password");
+      }
+
+      // Создание сессии
+      const token = Math.random().toString(36).substring(2, 15);
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
+
+      await ctx.db.insert("sessions", {
+        userId: user._id,
+        token,
+        expiresAt,
+        createdAt: Date.now(),
+      });
+
+      return { userId: user._id, token };
+    } catch (error) {
+      console.error("login error:", error);
+      throw error;
     }
-
-    // Проверка пароля
-    const isPasswordValid = await verifyPassword(args.password, user.password);
-    if (!isPasswordValid) {
-      throw new Error("Invalid password");
-    }
-
-    // Создание сессии
-    const token = Math.random().toString(36).substring(2, 15);
-    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 дней
-
-    await ctx.db.insert("sessions", {
-      userId: user._id,
-      token,
-      expiresAt,
-      createdAt: Date.now(),
-    });
-
-    return { userId: user._id, token };
   },
 });
 
