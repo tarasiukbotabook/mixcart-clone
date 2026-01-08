@@ -28,6 +28,11 @@ export default function RestaurantSidebar({ userEmail }: RestaurantSidebarProps)
       icon: "📋",
     },
     {
+      label: "Каталог",
+      href: "/restaurant/catalog",
+      icon: "🛒",
+    },
+    {
       label: "Аналитика",
       href: "/restaurant/analytics",
       icon: "📊",

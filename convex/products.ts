@@ -22,7 +22,18 @@ export const list = query({
       );
     }
 
-    return products;
+    // Добавляем информацию о поставщике
+    const productsWithSupplier = await Promise.all(
+      products.map(async (product) => {
+        const supplier = await ctx.db.get(product.supplierId);
+        return {
+          ...product,
+          supplierName: supplier?.supplierName || supplier?.name || "Неизвестно",
+        };
+      })
+    );
+
+    return productsWithSupplier;
   },
 });
 
