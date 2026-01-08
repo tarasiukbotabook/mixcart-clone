@@ -53,6 +53,7 @@ export const create = mutation({
     image: v.string(),
     images: v.array(v.string()),
     categoryId: v.id("categories"),
+    supplierId: v.id("users"),
     stock: v.number(),
     tags: v.array(v.string()),
   },
