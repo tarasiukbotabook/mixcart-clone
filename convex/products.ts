@@ -106,11 +106,7 @@ export const update = mutation({
 export const listBySupplier = query({
   args: { supplierId: v.id("users") },
   async handler(ctx, args) {
-    const products = await ctx.db
-      .query("products")
-      .withIndex("by_supplier", (q) => q.eq("supplierId", args.supplierId))
-      .collect();
-
-    return products;
+    const products = await ctx.db.query("products").collect();
+    return products.filter((p) => p.supplierId === args.supplierId);
   },
 });
