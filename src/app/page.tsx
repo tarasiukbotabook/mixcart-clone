@@ -75,7 +75,7 @@ export default function Home() {
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="text-2xl font-bold text-blue-600">Mixcart</div>
+          <div className="text-2xl font-bold text-blue-600">HubFood</div>
           <div className="flex gap-4 items-center">
             <Link href="/catalog" className="text-gray-700 hover:text-blue-600">
               Каталог
@@ -144,7 +144,7 @@ export default function Home() {
           ) : (
             <>
               <h1 className="text-5xl font-bold text-gray-900 mb-6">
-                Добро пожаловать в Mixcart
+                Добро пожаловать в HubFood
               </h1>
               <p className="text-xl text-gray-600 mb-8">
                 Платформа для ресторанов и поставщиков

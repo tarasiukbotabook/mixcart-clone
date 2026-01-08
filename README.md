@@ -1,4 +1,4 @@
-# Mixcart - Интернет магазин
+# HubFood - Интернет магазин
 
 Аналог https://mixcart.ru/ построенный на Next.js, Convex и Tailwind CSS.
 

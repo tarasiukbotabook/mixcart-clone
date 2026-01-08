@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mixcart - Интернет магазин",
+  title: "HubFood - Интернет магазин",
   description: "Лучший выбор товаров по доступным ценам",
 };
 

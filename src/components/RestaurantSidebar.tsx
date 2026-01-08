@@ -54,7 +54,7 @@ export default function RestaurantSidebar({ userEmail }: RestaurantSidebarProps)
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
         <Link href="/" className="text-2xl font-bold text-blue-400">
-          Mixcart
+          HubFood
         </Link>
       </div>
 
