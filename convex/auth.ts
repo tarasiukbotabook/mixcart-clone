@@ -35,47 +35,52 @@ export const registerRestaurant = mutation({
     restaurantPostalCode: v.string(),
   },
   async handler(ctx, args) {
-    // Проверка, существует ли уже пользователь с таким email
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
-      .first();
+    try {
+      // Проверка, существует ли уже пользователь с таким email
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .first();
 
-    if (existingUser) {
-      throw new Error("User with this email already exists");
+      if (existingUser) {
+        throw new Error("User with this email already exists");
+      }
+
+      // Хеширование пароля
+      const hashedPassword = await hashPassword(args.password);
+
+      // Создание пользователя
+      const userId = await ctx.db.insert("users", {
+        email: args.email,
+        password: hashedPassword,
+        name: args.name,
+        phone: args.phone,
+        type: "restaurant",
+        restaurantName: args.restaurantName,
+        restaurantAddress: args.restaurantAddress,
+        restaurantCity: args.restaurantCity,
+        restaurantPostalCode: args.restaurantPostalCode,
+        status: "active",
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
+      // Создание сессии
+      const token = Math.random().toString(36).substring(2, 15);
+      const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 дней
+
+      await ctx.db.insert("sessions", {
+        userId,
+        token,
+        expiresAt,
+        createdAt: Date.now(),
+      });
+
+      return { userId, token };
+    } catch (error) {
+      console.error("registerRestaurant error:", error);
+      throw error;
     }
-
-    // Хеширование пароля
-    const hashedPassword = await hashPassword(args.password);
-
-    // Создание пользователя
-    const userId = await ctx.db.insert("users", {
-      email: args.email,
-      password: hashedPassword,
-      name: args.name,
-      phone: args.phone,
-      type: "restaurant",
-      restaurantName: args.restaurantName,
-      restaurantAddress: args.restaurantAddress,
-      restaurantCity: args.restaurantCity,
-      restaurantPostalCode: args.restaurantPostalCode,
-      status: "active",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    });
-
-    // Создание сессии
-    const token = Math.random().toString(36).substring(2, 15);
-    const expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000; // 30 дней
-
-    await ctx.db.insert("sessions", {
-      userId,
-      token,
-      expiresAt,
-      createdAt: Date.now(),
-    });
-
-    return { userId, token };
   },
 });
 
