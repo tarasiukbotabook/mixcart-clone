@@ -19,18 +19,15 @@ export default function SupplierProducts() {
   const [token, setToken] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
-    slug: "",
     description: "",
     price: "",
-    originalPrice: "",
-    image: "",
-    images: "",
-    categoryId: "",
     stock: "",
-    tags: "",
+    categoryId: "",
+    image: null as File | null,
   });
 
   // Get current user
@@ -56,6 +53,23 @@ export default function SupplierProducts() {
     });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        image: file,
+      });
+      
+      // Preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,40 +83,48 @@ export default function SupplierProducts() {
       return;
     }
 
+    if (!formData.image) {
+      toast.error("Загрузите фотографию товара");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await createProduct({
-        name: formData.name,
-        slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-"),
-        description: formData.description,
-        price: parseFloat(formData.price),
-        originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
-        image: formData.image,
-        images: formData.images ? formData.images.split("\n").filter(img => img.trim()) : [],
-        categoryId: formData.categoryId as any,
-        supplierId: userId as any,
-        stock: parseInt(formData.stock),
-        tags: formData.tags ? formData.tags.split(",").map(tag => tag.trim()) : [],
-      });
+      // Convert image to base64
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Image = reader.result as string;
 
-      toast.success("Товар успешно добавлен!");
-      setFormData({
-        name: "",
-        slug: "",
-        description: "",
-        price: "",
-        originalPrice: "",
-        image: "",
-        images: "",
-        categoryId: "",
-        stock: "",
-        tags: "",
-      });
-      setShowForm(false);
+        await createProduct({
+          name: formData.name,
+          slug: formData.name.toLowerCase().replace(/\s+/g, "-"),
+          description: formData.description,
+          price: parseFloat(formData.price),
+          image: base64Image,
+          images: [base64Image],
+          categoryId: formData.categoryId as any,
+          supplierId: userId as any,
+          stock: parseInt(formData.stock),
+          tags: ["свежий"],
+        });
+
+        toast.success("Товар успешно добавлен!");
+        setFormData({
+          name: "",
+          description: "",
+          price: "",
+          stock: "",
+          categoryId: "",
+          image: null,
+        });
+        setImagePreview(null);
+        setShowForm(false);
+        setLoading(false);
+      };
+      reader.readAsDataURL(formData.image);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Ошибка при добавлении товара");
-    } finally {
       setLoading(false);
     }
   };
@@ -148,120 +170,6 @@ export default function SupplierProducts() {
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  Slug (URL)
-                </label>
-                <input
-                  type="text"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="pomidory-svezhie"
-                />
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold mb-2">
-                Описание *
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Подробное описание товара"
-              />
-            </div>
-
-            {/* Pricing */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Цена (сўм) *
-                </label>
-                <input
-                  type="number"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleChange}
-                  required
-                  step="0.01"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Старая цена (сўм)
-                </label>
-                <input
-                  type="number"
-                  name="originalPrice"
-                  value={formData.originalPrice}
-                  onChange={handleChange}
-                  step="0.01"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Количество в наличии *
-                </label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                />
-              </div>
-            </div>
-
-            {/* Images */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Основное изображение (URL) *
-                </label>
-                <input
-                  type="url"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image.jpg"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Дополнительные изображения (по одному на строку)
-                </label>
-                <textarea
-                  name="images"
-                  value={formData.images}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://example.com/image2.jpg&#10;https://example.com/image3.jpg"
-                />
-              </div>
-            </div>
-
-            {/* Category & Tags */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold mb-2">
                   Категория *
                 </label>
                 <select
@@ -279,19 +187,83 @@ export default function SupplierProducts() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Описание *
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                rows={3}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Подробное описание товара"
+              />
+            </div>
+
+            {/* Pricing and Stock */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold mb-2">
+                  Цена за кг (сўм) *
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  required
+                  step="0.01"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                />
+              </div>
 
               <div>
                 <label className="block text-sm font-semibold mb-2">
-                  Теги (через запятую)
+                  Количество в наличии (кг) *
                 </label>
                 <input
-                  type="text"
-                  name="tags"
-                  value={formData.tags}
+                  type="number"
+                  name="stock"
+                  value={formData.stock}
                   onChange={handleChange}
+                  required
+                  step="0.1"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="свежий, органический, местный"
+                  placeholder="0"
                 />
+              </div>
+            </div>
+
+            {/* Image Upload */}
+            <div>
+              <label className="block text-sm font-semibold mb-2">
+                Фотография товара *
+              </label>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                {imagePreview && (
+                  <div className="w-24 h-24 rounded-lg overflow-hidden border border-gray-300">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -306,7 +278,10 @@ export default function SupplierProducts() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false);
+                  setImagePreview(null);
+                }}
                 className="flex-1 bg-gray-200 text-gray-900 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
               >
                 Отмена
