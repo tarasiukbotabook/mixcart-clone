@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import toast from "react-hot-toast";
 import { AddIcon } from "@/components/Icons";
+import { imageCache } from "@/utils/imageCache";
 
 export default function SupplierProducts() {
   const [showForm, setShowForm] = useState(false);
@@ -15,6 +16,7 @@ export default function SupplierProducts() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<"price" | "stock" | null>(null);
   const [editValue, setEditValue] = useState("");
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -47,6 +49,49 @@ export default function SupplierProducts() {
       setUserId(currentUser._id);
     }
   }, [currentUser, token]);
+
+  // Load images for products asynchronously
+  useEffect(() => {
+    if (supplierProducts && supplierProducts.length > 0) {
+      supplierProducts.forEach((product: any) => {
+        if (!productImages[product._id]) {
+          // Load image asynchronously
+          const loadImage = async () => {
+            try {
+              // Check cache first
+              const cachedImage = imageCache.get(product._id);
+              
+              if (cachedImage) {
+                setProductImages(prev => ({
+                  ...prev,
+                  [product._id]: cachedImage
+                }));
+                return;
+              }
+              
+              // If not in cache, fetch from API
+              const response = await fetch(`/api/product-image/${product._id}`);
+              if (response.ok) {
+                const data = await response.json();
+                if (data.image) {
+                  // Store in cache
+                  imageCache.set(product._id, data.image);
+                  
+                  setProductImages(prev => ({
+                    ...prev,
+                    [product._id]: data.image
+                  }));
+                }
+              }
+            } catch (error) {
+              // Image failed to load, continue
+            }
+          };
+          loadImage();
+        }
+      });
+    }
+  }, [supplierProducts]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -142,6 +187,7 @@ export default function SupplierProducts() {
           images: [base64Image],
           categoryId: formData.categoryId as any,
           supplierId: userId as any,
+          supplierName: currentUser?.supplierName || currentUser?.name || "Неизвестно",
           stock: parseInt(formData.stock),
           tags: ["свежий"],
         });
@@ -340,12 +386,19 @@ export default function SupplierProducts() {
                 <div key={product._id} className={`border-2 rounded-lg overflow-hidden hover:shadow-lg transition ${product.active ? "border-gray-200" : "border-red-300 bg-red-50"}`}>
                   {/* Product Image */}
                   <div className="aspect-square bg-gray-200 overflow-hidden relative">
-                    {product.image && (
+                    {productImages[product._id] ? (
                       <img
-                        src={product.image}
+                        src={productImages[product._id]}
                         alt={product.name}
                         className="w-full h-full object-cover"
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="text-center">
+                          <div className="text-4xl mb-2 animate-pulse">🖼️</div>
+                          <p className="text-sm text-gray-500">Загрузка...</p>
+                        </div>
+                      </div>
                     )}
                     {!product.active && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">

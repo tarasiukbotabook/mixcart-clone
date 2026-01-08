@@ -35,7 +35,7 @@ export default function RestaurantSidebar({ userEmail }: RestaurantSidebarProps)
     },
     {
       label: "Корзина",
-      href: "/cart",
+      href: "/restaurant/cart",
       icon: CartIcon,
     },
     {

@@ -5,6 +5,8 @@ import { v } from "convex/values";
 export const getCart = query({
   args: { userId: v.id("users") },
   async handler(ctx, args) {
+    const startTime = Date.now();
+    
     const cart = await ctx.db
       .query("carts")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
@@ -14,16 +16,24 @@ export const getCart = query({
       return null;
     }
 
-    // Получаем информацию о товарах в корзине
+    // Получаем информацию о товарах в корзине (без изображений)
     const itemsWithDetails = await Promise.all(
       cart.items.map(async (item) => {
         const product = await ctx.db.get(item.productId);
         return {
           ...item,
-          product,
+          product: product ? {
+            _id: product._id,
+            name: product.name,
+            slug: product.slug,
+            supplierName: product.supplierName,
+            // Don't include image to reduce payload
+          } : null,
         };
       })
     );
+
+    console.log(`[cart.getCart] Fetched cart with ${cart.items.length} items in ${Date.now() - startTime}ms`);
 
     return {
       ...cart,

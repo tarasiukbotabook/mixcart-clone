@@ -13,14 +13,14 @@ interface User {
   type: "restaurant" | "supplier";
 }
 
-export default function RestaurantOrders() {
+export default function SupplierOrders() {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
 
   const currentUser = useQuery(api.auth.getCurrentUser, token ? { token } : "skip");
-  const orders = useQuery(api.orders.getByUser, user ? { userId: user._id as any } : "skip");
+  const orders = useQuery(api.orders.getBySupplier, user ? { supplierId: user._id as any } : "skip");
 
   useEffect(() => {
     const storedToken = localStorage.getItem("auth_token");
@@ -73,7 +73,7 @@ export default function RestaurantOrders() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Заказы</h1>
-          <p className="text-gray-600 mt-2">Управление вашими заказами</p>
+          <p className="text-gray-600 mt-2">Управление заказами от ресторанов</p>
         </div>
 
         {/* View Mode Toggle */}
@@ -160,6 +160,9 @@ export default function RestaurantOrders() {
                   Номер заказа
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                  Ресторан
+                </th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
                   Товары
                 </th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
@@ -179,16 +182,19 @@ export default function RestaurantOrders() {
                   <tr 
                     key={order._id} 
                     className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
-                    onClick={() => router.push(`/restaurant/orders/${order._id}`)}
+                    onClick={() => router.push(`/supplier/orders/${order._id}`)}
                   >
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">
                       №{order.orderNumber || order._id.slice(0, 8)}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">
+                      {order.restaurant?.name || "Неизвестно"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
                       {order.items.length} товар(ов)
                     </td>
                     <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                      {order.totalPrice.toFixed(2)} сўм
+                      {order.items.reduce((sum: number, item: any) => sum + item.quantity * item.price, 0).toFixed(2)} сўм
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
@@ -202,8 +208,8 @@ export default function RestaurantOrders() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                    Нет заказов. Начните с просмотра каталога товаров.
+                  <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                    Нет заказов
                   </td>
                 </tr>
               )}
@@ -218,7 +224,7 @@ export default function RestaurantOrders() {
               <div 
                 key={order._id} 
                 className="bg-white rounded-lg shadow p-6 cursor-pointer hover:shadow-lg transition"
-                onClick={() => router.push(`/restaurant/orders/${order._id}`)}
+                onClick={() => router.push(`/supplier/orders/${order._id}`)}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
@@ -226,6 +232,9 @@ export default function RestaurantOrders() {
                       Заказ №{order.orderNumber || order._id.slice(0, 8)}
                     </h3>
                     <p className="text-sm text-gray-600 mt-1">
+                      От: {order.restaurant?.name || "Неизвестно"}
+                    </p>
+                    <p className="text-sm text-gray-600">
                       {new Date(order.createdAt).toLocaleDateString("ru-RU")}
                     </p>
                   </div>
@@ -246,14 +255,14 @@ export default function RestaurantOrders() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Сумма:</span>
                   <span className="text-lg font-bold text-blue-600">
-                    {order.totalPrice.toFixed(2)} сўм
+                    {order.items.reduce((sum: number, item: any) => sum + item.quantity * item.price, 0).toFixed(2)} сўм
                   </span>
                 </div>
               </div>
             ))
           ) : (
             <div className="col-span-full text-center py-12">
-              <p className="text-gray-500 text-lg">Нет заказов. Начните с просмотра каталога товаров.</p>
+              <p className="text-gray-500 text-lg">Нет заказов</p>
             </div>
           )}
         </div>

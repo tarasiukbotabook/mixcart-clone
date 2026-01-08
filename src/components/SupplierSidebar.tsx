@@ -6,7 +6,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import { HomeIcon, ProductsIcon, LogoutIcon, ProfileIcon } from "./Icons";
+import { HomeIcon, ProductsIcon, LogoutIcon, ProfileIcon, OrdersIcon } from "./Icons";
 
 interface SupplierSidebarProps {
   userEmail: string;
@@ -27,6 +27,11 @@ export default function SupplierSidebar({ userEmail }: SupplierSidebarProps) {
       label: "Мои товары",
       href: "/supplier/products",
       icon: ProductsIcon,
+    },
+    {
+      label: "Заказы",
+      href: "/supplier/orders",
+      icon: OrdersIcon,
     },
     {
       label: "Профиль",
