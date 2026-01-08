@@ -68,7 +68,7 @@ export default function RegisterPage() {
       document.cookie = `auth_token=${result.token}; path=/; max-age=${30 * 24 * 60 * 60}`;
 
       toast.success("Регистрация успешна!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Ошибка регистрации"

@@ -39,7 +39,7 @@ export default function LoginPage() {
       document.cookie = `auth_token=${result.token}; path=/; max-age=${30 * 24 * 60 * 60}`;
 
       toast.success("Вы успешно вошли!");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Ошибка входа");
     } finally {

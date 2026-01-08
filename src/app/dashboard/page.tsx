@@ -80,7 +80,6 @@ export default function DashboardPage() {
   }
 
   const isRestaurant = user.type === "restaurant";
-  const isSupplier = user.type === "supplier";
 
   return (
     <div className="min-h-screen bg-gray-50">
