@@ -94,7 +94,10 @@ export default function Home() {
               </>
             ) : (
               <>
-                <Link href="/dashboard" className="text-gray-700 hover:text-blue-600">
+                <Link
+                  href={user.type === "restaurant" ? "/restaurant/dashboard" : "/supplier/dashboard"}
+                  className="text-gray-700 hover:text-blue-600"
+                >
                   Личный кабинет
                 </Link>
                 <span className="text-gray-600 text-sm">
@@ -125,7 +128,7 @@ export default function Home() {
               </p>
               <div className="flex gap-4 justify-center">
                 <Link
-                  href="/dashboard"
+                  href={user.type === "restaurant" ? "/restaurant/dashboard" : "/supplier/dashboard"}
                   className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
                 >
                   Перейти в личный кабинет

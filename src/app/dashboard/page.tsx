@@ -55,7 +55,13 @@ export default function DashboardPage() {
         localStorage.removeItem("auth_token");
         router.push("/auth/login");
       } else {
-        setUser(currentUser as User);
+        const userData = currentUser as User;
+        // Перенаправляем ресторан на новую админку
+        if (userData.type === "restaurant") {
+          router.push("/restaurant/dashboard");
+        } else {
+          setUser(userData);
+        }
       }
       setLoading(false);
     }
