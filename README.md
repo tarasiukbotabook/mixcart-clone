@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mixcart - Интернет магазин
 
-## Getting Started
+Аналог https://mixcart.ru/ построенный на Next.js, Convex и Tailwind CSS.
 
-First, run the development server:
+## Стек технологий
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: Convex
+- **Hosting**: Vercel
+- **State Management**: Zustand
+- **Notifications**: React Hot Toast
+
+## Структура проекта
+
+```
+mixcart-clone/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # Root layout
+│   │   ├── page.tsx            # Главная страница
+│   │   ├── catalog/
+│   │   │   └── page.tsx        # Каталог товаров
+│   │   ├── cart/
+│   │   │   └── page.tsx        # Корзина
+│   │   └── product/
+│   │       └── [slug]/
+│   │           └── page.tsx    # Страница товара
+│   └── providers/
+│       └── convex-provider.tsx # Convex провайдер
+├── convex/
+│   ├── schema.ts               # Схема БД
+│   ├── products.ts             # API для товаров
+│   ├── categories.ts           # API для категорий
+│   └── cart.ts                 # API для корзины
+├── convex.json                 # Конфиг Convex
+├── next.config.ts              # Конфиг Next.js
+├── vercel.json                 # Конфиг Vercel
+└── package.json
+```
+
+## Быстрый старт
+
+### 1. Установка зависимостей
+
+```bash
+npm install
+```
+
+### 2. Инициализация Convex
+
+```bash
+npx convex dev
+```
+
+Это создаст проект Convex и сгенерирует необходимые файлы.
+
+### 3. Обновление переменных окружения
+
+После инициализации Convex обновите `.env.local`:
+
+```bash
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+```
+
+### 4. Запуск локального сервера
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Откройте [http://localhost:3000](http://localhost:3000) в браузере.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Развертывание на Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Подготовка
 
-## Learn More
+```bash
+git add .
+git commit -m "Initial commit"
+git push origin main
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Развертывание
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Перейдите на [vercel.com](https://vercel.com)
+2. Нажмите "New Project"
+3. Импортируйте репозиторий
+4. Добавьте переменную окружения:
+   - `NEXT_PUBLIC_CONVEX_URL` - URL вашего Convex deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Развертывание Convex
 
-## Deploy on Vercel
+```bash
+npx convex deploy
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Это развернет вашу БД в production.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Основные функции
+
+- ✅ Каталог товаров с фильтрацией по категориям
+- ✅ Поиск товаров
+- ✅ Страница товара с галереей изображений
+- ✅ Корзина (в разработке)
+- ✅ Система заказов (в разработке)
+- ✅ Отзывы и рейтинги (в разработке)
+- ✅ Избранное (в разработке)
+
+## Команды
+
+```bash
+# Разработка
+npm run dev
+
+# Сборка
+npm run build
+
+# Production
+npm run start
+
+# Linting
+npm run lint
+
+# Convex dev
+npx convex dev
+
+# Convex deploy
+npx convex deploy
+```
+
+## API Endpoints (Convex)
+
+### Товары
+- `api.products.list` - Получить список товаров
+- `api.products.getById` - Получить товар по ID
+- `api.products.getBySlug` - Получить товар по slug
+- `api.products.create` - Создать товар
+- `api.products.update` - Обновить товар
+
+### Категории
+- `api.categories.list` - Получить список категорий
+- `api.categories.getById` - Получить категорию по ID
+- `api.categories.getBySlug` - Получить категорию по slug
+- `api.categories.create` - Создать категорию
+
+### Корзина
+- `api.cart.getCart` - Получить корзину пользователя
+- `api.cart.addItem` - Добавить товар в корзину
+- `api.cart.removeItem` - Удалить товар из корзины
+- `api.cart.clearCart` - Очистить корзину
+
+## Следующие шаги
+
+1. Реализовать функциональность корзины
+2. Добавить систему заказов
+3. Реализовать аутентификацию пользователей
+4. Добавить систему отзывов
+5. Реализовать избранное
+6. Добавить админ-панель
+7. Интегрировать платежную систему
+
+## Лицензия
+
+MIT
