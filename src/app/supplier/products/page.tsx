@@ -36,6 +36,10 @@ export default function SupplierProducts() {
   const createProduct = useMutation(api.products.create);
 
   useEffect(() => {
+    console.log("Categories:", categories);
+  }, [categories]);
+
+  useEffect(() => {
     const storedToken = localStorage.getItem("auth_token");
     setToken(storedToken);
   }, []);
