@@ -188,7 +188,7 @@ export const getCurrentUser = query({
 
     // Проверка срока действия сессии
     if (session.expiresAt < Date.now()) {
-      await ctx.db.delete(session._id);
+      // Сессия истекла, но мы не можем удалить в query
       return null;
     }
 
@@ -201,6 +201,23 @@ export const getCurrentUser = query({
     // Возвращаем пользователя без пароля
     const { password, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  },
+});
+
+// Удаление истекших сессий
+export const cleanupExpiredSessions = mutation({
+  args: {},
+  async handler(ctx) {
+    const sessions = await ctx.db.query("sessions").collect();
+    const now = Date.now();
+
+    for (const session of sessions) {
+      if (session.expiresAt < now) {
+        await ctx.db.delete(session._id);
+      }
+    }
+
+    return { cleaned: true };
   },
 });
 
