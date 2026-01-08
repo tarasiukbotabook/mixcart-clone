@@ -11,8 +11,14 @@ export default function Home() {
             <Link href="/catalog" className="text-gray-700 hover:text-blue-600">
               Каталог
             </Link>
-            <Link href="/cart" className="text-gray-700 hover:text-blue-600">
-              Корзина
+            <Link href="/auth/login" className="text-gray-700 hover:text-blue-600">
+              Вход
+            </Link>
+            <Link
+              href="/auth/register"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Регистрация
             </Link>
           </div>
         </nav>
@@ -25,19 +31,71 @@ export default function Home() {
             Добро пожаловать в Mixcart
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Лучший выбор товаров по доступным ценам
+            Платформа для ресторанов и поставщиков
           </p>
-          <Link
-            href="/catalog"
-            className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-          >
-            Начать покупки
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link
+              href="/auth/register"
+              className="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            >
+              Начать
+            </Link>
+            <Link
+              href="/catalog"
+              className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold border-2 border-blue-600 hover:bg-blue-50 transition"
+            >
+              Просмотреть каталог
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Features */}
       <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center mb-12">Для кого это?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* For Restaurants */}
+            <div className="p-8 border-2 border-blue-200 rounded-lg">
+              <div className="text-4xl mb-4">🍽️</div>
+              <h3 className="text-2xl font-bold mb-4">Для ресторанов</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li>✓ Просмотр товаров от поставщиков</li>
+                <li>✓ Быстрое размещение заказов</li>
+                <li>✓ Отслеживание доставки</li>
+                <li>✓ История заказов и счетов</li>
+              </ul>
+              <Link
+                href="/auth/register"
+                className="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              >
+                Зарегистрироваться как ресторан
+              </Link>
+            </div>
+
+            {/* For Suppliers */}
+            <div className="p-8 border-2 border-green-200 rounded-lg">
+              <div className="text-4xl mb-4">📦</div>
+              <h3 className="text-2xl font-bold mb-4">Для поставщиков</h3>
+              <ul className="space-y-2 text-gray-600">
+                <li>✓ Размещение своих товаров</li>
+                <li>✓ Управление каталогом</li>
+                <li>✓ Получение заказов от ресторанов</li>
+                <li>✓ Аналитика продаж</li>
+              </ul>
+              <Link
+                href="/auth/register"
+                className="mt-6 inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+              >
+                Зарегистрироваться как поставщик
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
